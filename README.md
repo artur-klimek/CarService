@@ -29,61 +29,9 @@ CarService is a comprehensive web application for managing a car service busines
   - Employee performance tracking
   - Financial reports
 
-## Local Development Setup
 
-### Prerequisites
 
-- Python 3.8 or higher
-- pip (Python package manager)
-- Virtual environment (recommended)
-- Git
-
-### Installation Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd CarService_Refreshed
-   ```
-
-2. **Create and activate virtual environment**
-   ```bash
-   # Windows
-   python -m venv venv
-   .\venv\Scripts\activate
-
-   # Linux/MacOS
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Initialize the database**
-   ```bash
-   python init_db.py
-   ```
-
-5. **Run the application**
-   ```bash
-   python app.py
-   ```
-
-The application will be available at `http://localhost:5000`
-
-### Default Admin Account
-
-After initialization, a default admin account is created:
-- Username: admin
-- Password: admin123
-- Email: admin@carservice.com
-
-**Important**: Change these credentials in production!
-
-## Docker Setup
+## Docker Setup (recommended method)
 
 ### Building and Running with Docker
 
@@ -141,6 +89,62 @@ These volumes ensure that:
 - Configuration persists between container restarts
 - Logs are accessible from the host system
 - Data is not lost when the container is removed
+
+
+## Local Development Setup
+
+### Prerequisites
+
+- Python 3.8 or higher
+- pip (Python package manager)
+- Virtual environment (recommended)
+- Git
+
+### Installation Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/artur-klimek/CarService.git
+   cd CarService
+   ```
+
+2. **Create and activate virtual environment**
+   ```bash
+   # Windows
+   python -m venv venv
+   .\venv\Scripts\activate
+
+   # Linux/MacOS
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Initialize the database**
+   ```bash
+   python init_db.py
+   ```
+
+5. **Run the application**
+   ```bash
+   python app.py
+   ```
+
+The application will be available at `http://localhost:5000`
+
+### Default Admin Account
+
+After initialization, a default admin account is created:
+- Username: admin
+- Password: admin123
+- Email: admin@carservice.com
+
+**Important**: Change these credentials in production!
+
 
 ## Configuration
 
@@ -210,7 +214,7 @@ The application can also be configured using environment variables:
 ### Project Structure
 
 ```
-CarService_Refreshed/
+CarService/
 ├── app/
 │   ├── __init__.py
 │   ├── config.py

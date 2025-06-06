@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Client Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Welcome, {{ current_user.get_full_name() }}</h2>
+    
+    <div class="row mt-4">
+        <!-- Vehicles Section -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">My Vehicles</h5>
+                    <a href="{{ url_for('client.vehicles') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-car"></i> Manage Vehicles
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if current_user.vehicles.count() > 0 %}
+                        <div class="list-group">
+                            {% for vehicle in current_user.vehicles.limit(3) %}
+                            <div class="list-group-item">
+                                <h6 class="mb-1">{{ vehicle.make }} {{ vehicle.model }}</h6>
+                                <p class="mb-1 text-muted">{{ vehicle.license_plate }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if current_user.vehicles.count() > 3 %}
+                            <div class="text-center mt-3">
+                                <a href="{{ url_for('client.vehicles') }}" class="btn btn-outline-primary btn-sm">
+                                    View All Vehicles
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted">You haven't added any vehicles yet.</p>
+                        <a href="{{ url_for('client.add_vehicle') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Your First Vehicle
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">My Services</h5>
+                    <a href="{{ url_for('client.services') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-tools"></i> Manage Services
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% set recent_services = current_user.client_services.order_by(Service.created_at.desc()).limit(3).all() %}
+                    {% if recent_services %}
+                        <div class="list-group">
+                            {% for service in recent_services %}
+                            <div class="list-group-item">
+                                <h6 class="mb-1">{{ service.vehicle.make }} {{ service.vehicle.model }}</h6>
+                                <p class="mb-1">
+                                    <span class="badge bg-{{ service.status_color }}">
+                                        {{ service.status|replace('_', ' ')|title }}
+                                    </span>
+                                    {{ service.description[:50] }}{% if service.description|length > 50 %}...{% endif %}
+                                </p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('client.services') }}" class="btn btn-outline-primary btn-sm">
+                                View All Services
+                            </a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">You haven't requested any services yet.</p>
+                        {% if current_user.vehicles.count() > 0 %}
+                            <a href="{{ url_for('client.service_request') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Request New Service
+                            </a>
+                        {% else %}
+                            <p class="text-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                You need to add a vehicle first before requesting a service.
+                            </p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

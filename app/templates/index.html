@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 mb-4">Welcome to CarService</h1>
+            <p class="lead">Professional car maintenance and repair services.</p>
+        </div>
+    </div>
+    
+    {% if current_user.is_authenticated %}
+        {% if current_user.is_admin() %}
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-users"></i> User Management
+                            </h5>
+                            <p class="card-text">Manage users, roles, and permissions.</p>
+                            <a href="{{ url_for('admin.users') }}" class="btn btn-primary w-100">Manage Users</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-car"></i> Vehicle Management
+                            </h5>
+                            <p class="card-text">View and manage all registered vehicles.</p>
+                            <a href="{{ url_for('admin.vehicles') }}" class="btn btn-primary w-100">Manage Vehicles</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-tools"></i> Service Management
+                            </h5>
+                            <p class="card-text">View and manage all service requests.</p>
+                            <a href="{{ url_for('admin.services') }}" class="btn btn-primary w-100">Manage Services</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% elif current_user.is_employee() %}
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-tools"></i> Service Management
+                            </h5>
+                            <p class="card-text">Manage service requests and repairs.</p>
+                            <a href="{{ url_for('employee.services') }}" class="btn btn-primary w-100">Manage Services</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-car"></i> Vehicle List
+                            </h5>
+                            <p class="card-text">View and manage vehicles in service.</p>
+                            <a href="{{ url_for('employee.vehicles') }}" class="btn btn-primary w-100">View Vehicles</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-users"></i> Client Management
+                            </h5>
+                            <p class="card-text">View and manage client information.</p>
+                            <a href="{{ url_for('employee.users') }}" class="btn btn-primary w-100">Manage Clients</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-car"></i> My Vehicles
+                            </h5>
+                            <p class="card-text">Manage your registered vehicles.</p>
+                            <a href="{{ url_for('client.vehicles') }}" class="btn btn-primary w-100">View Vehicles</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-tools"></i> My Services
+                            </h5>
+                            <p class="card-text">View and manage your service requests.</p>
+                            <a href="{{ url_for('client.services') }}" class="btn btn-primary w-100">View Services</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-plus"></i> Request Service
+                            </h5>
+                            <p class="card-text">Request service for your vehicles.</p>
+                            <a href="{{ url_for('client.service_request') }}" class="btn btn-primary w-100">New Service</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-user-plus"></i> Register
+                        </h5>
+                        <p class="card-text">Create a new account to manage your vehicles and service requests.</p>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary w-100">Register Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </h5>
+                        <p class="card-text">Already have an account? Sign in to access your dashboard.</p>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary w-100">Sign In</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if not current_user.is_authenticated or current_user.is_client() %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-headset"></i> Contact Us
+                    </h5>
+                    <p class="card-text">Need help? Contact our support team.</p>
+                    <a href="{{ url_for('main.contact') }}" class="btn btn-outline-primary w-100">Contact Support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

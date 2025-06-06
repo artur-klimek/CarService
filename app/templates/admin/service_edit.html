@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Service{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Edit Service</h2>
+        </div>
+        <div class="col text-end">
+            <a href="{{ url_for('admin.services') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Services
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin.edit_service', id=service.id) }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.vehicle_id.label(class="form-label") }}
+                            {{ form.vehicle_id(class="form-select") }}
+                            {% if form.vehicle_id.errors %}
+                                {% for error in form.vehicle_id.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.assigned_employee_id.label(class="form-label") }}
+                            {{ form.assigned_employee_id(class="form-select") }}
+                            {% if form.assigned_employee_id.errors %}
+                                {% for error in form.assigned_employee_id.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.priority.label(class="form-label") }}
+                            {{ form.priority(class="form-select") }}
+                            {% if form.priority.errors %}
+                                {% for error in form.priority.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.status.label(class="form-label") }}
+                            {{ form.status(class="form-select") }}
+                            {% if form.status.errors %}
+                                {% for error in form.status.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.scheduled_date.label(class="form-label") }}
+                            {{ form.scheduled_date(class="form-control", type="text", placeholder="DD.MM.YYYY HH:mm") }}
+                            {% if form.scheduled_date.errors %}
+                                {% for error in form.scheduled_date.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.estimated_cost.label(class="form-label") }}
+                            {{ form.estimated_cost(class="form-control", type="number", step="0.01", min="0") }}
+                            {% if form.estimated_cost.errors %}
+                                {% for error in form.estimated_cost.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.actual_cost.label(class="form-label") }}
+                            {{ form.actual_cost(class="form-control", type="number", step="0.01", min="0") }}
+                            {% if form.actual_cost.errors %}
+                                {% for error in form.actual_cost.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control", rows=3) }}
+                    {% if form.description.errors %}
+                        {% for error in form.description.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    {{ form.diagnosis.label(class="form-label") }}
+                    {{ form.diagnosis(class="form-control", rows=3) }}
+                    {% if form.diagnosis.errors %}
+                        {% for error in form.diagnosis.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    {{ form.service_plan.label(class="form-label") }}
+                    {{ form.service_plan(class="form-control", rows=3) }}
+                    {% if form.service_plan.errors %}
+                        {% for error in form.service_plan.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    {{ form.parts_needed.label(class="form-label") }}
+                    {{ form.parts_needed(class="form-control", rows=3) }}
+                    {% if form.parts_needed.errors %}
+                        {% for error in form.parts_needed.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    {{ form.notes.label(class="form-label") }}
+                    {{ form.notes(class="form-control", rows=3) }}
+                    {% if form.notes.errors %}
+                        {% for error in form.notes.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('admin.services') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.querySelector('input[name="scheduled_date"]');
+    
+    // Format date as user types
+    dateInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        
+        if (value.length > 0) {
+            // Format as DD.MM.YYYY HH:mm
+            if (value.length <= 2) {
+                value = value;
+            } else if (value.length <= 4) {
+                value = value.slice(0, 2) + '.' + value.slice(2);
+            } else if (value.length <= 6) {
+                value = value.slice(0, 2) + '.' + value.slice(2, 4) + '.' + value.slice(4);
+            } else if (value.length <= 8) {
+                value = value.slice(0, 2) + '.' + value.slice(2, 4) + '.' + value.slice(4, 8);
+            } else if (value.length <= 10) {
+                value = value.slice(0, 2) + '.' + value.slice(2, 4) + '.' + value.slice(4, 8) + ' ' + value.slice(8);
+            } else {
+                value = value.slice(0, 2) + '.' + value.slice(2, 4) + '.' + value.slice(4, 8) + ' ' + value.slice(8, 10) + ':' + value.slice(10, 12);
+            }
+        }
+        
+        e.target.value = value;
+    });
+});
+</script>
+{% endblock %} 

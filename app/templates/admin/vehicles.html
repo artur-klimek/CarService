@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Vehicles{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Vehicles</h1>
+        <a href="{{ url_for('admin.add_vehicle') }}" class="btn btn-primary">Add Vehicle</a>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="search_term" class="form-label">Search</label>
+                    <input type="text" class="form-control" id="search_term" name="search_term" 
+                           placeholder="Search by license plate or VIN..." 
+                           value="{{ request.args.get('search_term', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="make_filter" class="form-label">Make</label>
+                    <input type="text" class="form-control" id="make_filter" name="make_filter" 
+                           placeholder="Filter by make..."
+                           value="{{ request.args.get('make_filter', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="model_filter" class="form-label">Model</label>
+                    <input type="text" class="form-control" id="model_filter" name="model_filter" 
+                           placeholder="Filter by model..."
+                           value="{{ request.args.get('model_filter', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="year_filter" class="form-label">Year</label>
+                    <input type="number" class="form-control" id="year_filter" name="year_filter" 
+                           placeholder="Filter by year..."
+                           value="{{ request.args.get('year_filter', '') }}">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100" title="Search">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Owner</th>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Year</th>
+                    <th>License Plate</th>
+                    <th>VIN</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehicle in vehicles %}
+                <tr>
+                    <td>{{ vehicle.owner.get_full_name() }}</td>
+                    <td>{{ vehicle.make }}</td>
+                    <td>{{ vehicle.model }}</td>
+                    <td>{{ vehicle.year }}</td>
+                    <td>{{ vehicle.license_plate }}</td>
+                    <td>{{ vehicle.vin }}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{{ url_for('admin.edit_vehicle', id=vehicle.id) }}" 
+                               class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <button type="button" class="btn btn-sm btn-danger" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#deleteModal{{ vehicle.id }}">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </div>
+                        
+                        <div class="modal fade" id="deleteModal{{ vehicle.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirm Delete</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete vehicle {{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.license_plate }})?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <form action="{{ url_for('admin.delete_vehicle', id=vehicle.id) }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if not vehicles %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No vehicles found.
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="serviceForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.client_id.label(class="form-label") }}
+                            {{ form.client_id(class="form-select") }}
+                            {% for error in form.client_id.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.vehicle_id.label(class="form-label") }}
+                            {{ form.vehicle_id(class="form-select") }}
+                            {% for error in form.vehicle_id.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows=5) }}
+                            {% for error in form.description.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.priority.label(class="form-label") }}
+                            {{ form.priority(class="form-select") }}
+                            {% for error in form.priority.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.scheduled_date.label(class="form-label") }}
+                            {{ form.scheduled_date(class="form-control", placeholder="DD.MM.YYYY HH:mm") }}
+                            {% for error in form.scheduled_date.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.assigned_employee_id.label(class="form-label") }}
+                            {{ form.assigned_employee_id(class="form-select") }}
+                            {% for error in form.assigned_employee_id.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('admin.services') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('serviceForm');
+    const clientSelect = document.getElementById('client_id');
+    const vehicleSelect = document.getElementById('vehicle_id');
+    
+    // Function to load vehicles for a client
+    function loadVehicles(clientId) {
+        // Clear current options and add empty option
+        vehicleSelect.innerHTML = '<option value="">Select vehicle...</option>';
+        
+        if (clientId) {
+            // Show loading state
+            vehicleSelect.disabled = true;
+            
+            // Fetch vehicles for selected client
+            fetch(`/admin/api/clients/${clientId}/vehicles`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(vehicles => {
+                    // Add vehicles to select
+                    vehicles.forEach(vehicle => {
+                        const option = document.createElement('option');
+                        option.value = vehicle.id;
+                        option.textContent = `${vehicle.make} ${vehicle.model} (${vehicle.license_plate})`;
+                        vehicleSelect.appendChild(option);
+                    });
+                    
+                    // Enable select
+                    vehicleSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error loading vehicles:', error);
+                    vehicleSelect.innerHTML = '<option value="">Error loading vehicles</option>';
+                    vehicleSelect.disabled = false;
+                });
+        } else {
+            vehicleSelect.disabled = true;
+            vehicleSelect.innerHTML = '<option value="">Select vehicle...</option>';
+        }
+    }
+    
+    // Load vehicles when client is selected
+    clientSelect.addEventListener('change', function() {
+        loadVehicles(this.value);
+    });
+    
+    // Form validation
+    form.addEventListener('submit', function(event) {
+        if (!clientSelect.value) {
+            event.preventDefault();
+            alert('Please select a client');
+            return;
+        }
+        
+        if (!vehicleSelect.value) {
+            event.preventDefault();
+            alert('Please select a vehicle');
+            return;
+        }
+    });
+    
+    // Load vehicles on page load if client is pre-selected
+    if (clientSelect.value) {
+        loadVehicles(clientSelect.value);
+    }
+});
+</script>
+{% endblock %} 

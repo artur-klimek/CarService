@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Request Service{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Request Service</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">Vehicle Information</h5>
+                        <p class="mb-0">
+                            {{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})<br>
+                            License Plate: {{ vehicle.license_plate }}<br>
+                            VIN: {{ vehicle.vin }}
+                        </p>
+                    </div>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Service Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required
+                                    placeholder="Please describe the service or repair needed..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="preferred_date" class="form-label">Preferred Service Date</label>
+                            <input type="datetime-local" class="form-control" id="preferred_date" name="preferred_date" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="priority" class="form-label">Priority</label>
+                            <select class="form-select" id="priority" name="priority">
+                                <option value="low">Low</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                            <a href="{{ url_for('client.vehicles') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

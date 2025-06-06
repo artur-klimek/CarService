@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Service Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Service Details</h2>
+        </div>
+        <div class="col text-end">
+            <a href="{{ url_for('admin.services') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Services
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Service Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Service ID:</div>
+                        <div class="col-md-8">{{ service.id }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Client:</div>
+                        <div class="col-md-8">{{ service.client.get_full_name() }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Vehicle:</div>
+                        <div class="col-md-8">
+                            {{ service.vehicle.make }} {{ service.vehicle.model }}
+                            ({{ service.vehicle.license_plate }})
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Status:</div>
+                        <div class="col-md-8">
+                            <span class="badge bg-{{ service.status_color }}">
+                                {{ service.status|replace('_', ' ')|title }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Priority:</div>
+                        <div class="col-md-8">
+                            <span class="badge bg-{{ service.priority_color }}">
+                                {{ service.priority|title }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Description:</div>
+                        <div class="col-md-8">{{ service.description }}</div>
+                    </div>
+                    {% if service.diagnosis %}
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Diagnosis:</div>
+                        <div class="col-md-8">{{ service.diagnosis }}</div>
+                    </div>
+                    {% endif %}
+                    {% if service.service_plan %}
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Service Plan:</div>
+                        <div class="col-md-8">{{ service.service_plan }}</div>
+                    </div>
+                    {% endif %}
+                    {% if service.parts_needed %}
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Parts Needed:</div>
+                        <div class="col-md-8">{{ service.parts_needed }}</div>
+                    </div>
+                    {% endif %}
+                    {% if service.estimated_cost %}
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Estimated Cost:</div>
+                        <div class="col-md-8">${{ "%.2f"|format(service.estimated_cost) }}</div>
+                    </div>
+                    {% endif %}
+                    {% if service.actual_cost %}
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Actual Cost:</div>
+                        <div class="col-md-8">${{ "%.2f"|format(service.actual_cost) }}</div>
+                    </div>
+                    {% endif %}
+                    {% if service.notes %}
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Notes:</div>
+                        <div class="col-md-8">{{ service.notes }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Service History</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for entry in history_entries %}
+                        <div class="timeline-item">
+                            <div class="timeline-date">
+                                {{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}
+                            </div>
+                            <div class="timeline-content">
+                                {{ entry.description }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

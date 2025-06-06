@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}New Service{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>New Service</h2>
+    <form method="POST" class="mt-4">
+        <div class="mb-3">
+            <label for="user_id" class="form-label">Client</label>
+            <select class="form-select" id="user_id" name="user_id" required>
+                <option value="">Select client...</option>
+                {% for user in users %}
+                <option value="{{ user.id }}" {% if selected_user and selected_user.id == user.id %}selected{% endif %}>
+                    {{ user.get_full_name() }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="vehicle_id" class="form-label">Vehicle</label>
+            <select class="form-select" id="vehicle_id" name="vehicle_id" required>
+                <option value="">Select vehicle...</option>
+                {% for vehicle in vehicles %}
+                <option value="{{ vehicle.id }}">
+                    {{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.license_plate }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="priority" class="form-label">Priority</label>
+            <select class="form-select" id="priority" name="priority" required>
+                <option value="low">Low</option>
+                <option value="normal" selected>Normal</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Create Service</button>
+        <a href="{{ url_for('employee.services') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userSelect = document.getElementById('user_id');
+    const vehicleSelect = document.getElementById('vehicle_id');
+    
+    // Function to load vehicles for a user
+    function loadVehicles(userId) {
+        // Clear current options
+        vehicleSelect.innerHTML = '<option value="">Select vehicle...</option>';
+        
+        if (userId) {
+            // Show loading state
+            vehicleSelect.disabled = true;
+            
+            // Fetch vehicles for selected user
+            fetch(`/employee/api/users/${userId}/vehicles`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(vehicles => {
+                    // Add vehicles to select
+                    vehicles.forEach(vehicle => {
+                        const option = document.createElement('option');
+                        option.value = vehicle.id;
+                        option.textContent = `${vehicle.make} ${vehicle.model} (${vehicle.license_plate})`;
+                        vehicleSelect.appendChild(option);
+                    });
+                    
+                    // Enable select
+                    vehicleSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error loading vehicles:', error);
+                    vehicleSelect.innerHTML = '<option value="">Error loading vehicles</option>';
+                    vehicleSelect.disabled = false;
+                });
+        }
+    }
+    
+    // Load vehicles when user is selected
+    userSelect.addEventListener('change', function() {
+        loadVehicles(this.value);
+    });
+    
+    // Load vehicles on page load if user is pre-selected
+    if (userSelect.value) {
+        loadVehicles(userSelect.value);
+    }
+});
+</script>
+{% endblock %} 

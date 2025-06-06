@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - CarService{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <h2>Contact Information</h2>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Address</h5>
+                <p class="card-text">
+                    123 Car Service Street<br>
+                    Automotive City, AC 12345<br>
+                    United States
+                </p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Contact Details</h5>
+                <p class="card-text">
+                    <strong>Phone:</strong> (555) 123-4567<br>
+                    <strong>Email:</strong> info@carservice.com<br>
+                    <strong>Hours:</strong> Mon-Fri: 8:00 AM - 6:00 PM
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <h2>Send us a Message</h2>
+        <form method="POST" action="{{ url_for('main.contact') }}">
+            {{ form.csrf_token }}
+            <div class="mb-3">
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.message.label(class="form-label") }}
+                {{ form.message(class="form-control", rows=5) }}
+            </div>
+            <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+    </div>
+</div>
+{% endblock %} 

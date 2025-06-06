@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Admin Dashboard</h1>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">Total Users</h5>
+                    <h2 class="card-text text-primary">{{ total_users }}</h2>
+                    <div class="mt-2 text-dark">
+                        {% for role, count in users_by_role %}
+                        <small>{{ role|title }}: {{ count }}</small><br>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">Total Vehicles</h5>
+                    <h2 class="card-text text-success">{{ total_vehicles }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">Total Services</h5>
+                    <h2 class="card-text text-info">{{ total_services }}</h2>
+                    <div class="mt-2 text-dark">
+                        {% for status, count in services_by_status %}
+                        <small>{{ status|replace('_', ' ')|title }}: {{ count }}</small><br>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Access Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">User Management</h5>
+                    <p class="card-text">Manage user accounts, roles, and permissions.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin.users') }}" class="btn btn-primary">Manage Users</a>
+                        <a href="{{ url_for('admin.add_user') }}" class="btn btn-outline-primary">Add New User</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Vehicle Management</h5>
+                    <p class="card-text">View and manage all registered vehicles.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin.vehicles') }}" class="btn btn-primary">Manage Vehicles</a>
+                        <a href="{{ url_for('admin.add_vehicle') }}" class="btn btn-outline-primary">Add New Vehicle</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Service Management</h5>
+                    <p class="card-text">Monitor and manage service requests.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin.services') }}" class="btn btn-primary">Manage Services</a>
+                        <a href="{{ url_for('admin.add_service') }}" class="btn btn-outline-primary">Add New Service</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Users</h5>
+                    <div class="list-group">
+                        {% for user in recent_users %}
+                        <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ user.get_full_name() or user.username }}</h6>
+                                <small>{{ user.created_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                            <p class="mb-1">{{ user.email }}</p>
+                            <small class="text-muted">Role: {{ user.role|title }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Services</h5>
+                    <div class="list-group">
+                        {% for service in recent_services %}
+                        <a href="{{ url_for('admin.service_details', id=service.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ service.vehicle.make }} {{ service.vehicle.model }}</h6>
+                                <small>{{ service.created_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                            <p class="mb-1">{{ service.description|truncate(100) }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <span class="badge bg-{{ service.status_color }}">
+                                        {{ service.status|replace('_', ' ')|title }}
+                                    </span>
+                                </small>
+                                <small class="text-muted">
+                                    <span class="badge bg-{{ service.priority_color }}">
+                                        {{ service.priority|title }}
+                                    </span>
+                                </small>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

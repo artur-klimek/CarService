@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Service{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Manage Service</h4>
+                    <span class="badge bg-{{ service.status_color }}">
+                        {{ service.status|replace('_', ' ')|title }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <!-- Service Information -->
+                    <div class="mb-4">
+                        <h5>Service Information</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Client:</strong> {{ service.client.get_full_name() }}</p>
+                                <p><strong>Vehicle:</strong> {{ service.vehicle.make }} {{ service.vehicle.model }} ({{ service.vehicle.license_plate }})</p>
+                                <p><strong>Priority:</strong> 
+                                    <span class="badge bg-{{ service.priority_color }}">
+                                        {{ service.priority|title }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Preferred Date:</strong> {{ service.preferred_date.strftime('%Y-%m-%d') }}</p>
+                                {% if service.scheduled_date %}
+                                <p><strong>Scheduled Date:</strong> {{ service.scheduled_date.strftime('%Y-%m-%d') }}</p>
+                                {% endif %}
+                                {% if service.employee %}
+                                <p><strong>Assigned To:</strong> {{ service.employee.get_full_name() }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <p><strong>Description:</strong></p>
+                                <p class="border rounded p-3 bg-light">{{ service.description }}</p>
+                                {% if service.additional_notes %}
+                                <p><strong>Additional Notes:</strong></p>
+                                <p class="border rounded p-3 bg-light">{{ service.additional_notes }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Management Form -->
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.status.label(class="form-label") }}
+                                    {{ form.status(class="form-select") }}
+                                    {% if form.status.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.status.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    {{ form.scheduled_date.label(class="form-label") }}
+                                    {{ form.scheduled_date(class="form-control", type="date") }}
+                                    {% if form.scheduled_date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.scheduled_date.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    {{ form.estimated_duration.label(class="form-label") }}
+                                    {{ form.estimated_duration(class="form-control") }}
+                                    {% if form.estimated_duration.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.estimated_duration.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.estimated_cost.label(class="form-label") }}
+                                    {{ form.estimated_cost(class="form-control") }}
+                                    {% if form.estimated_cost.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.estimated_cost.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    {{ form.actual_cost.label(class="form-label") }}
+                                    {{ form.actual_cost(class="form-control") }}
+                                    {% if form.actual_cost.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.actual_cost.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.diagnosis.label(class="form-label") }}
+                            {{ form.diagnosis(class="form-control", rows=3) }}
+                            {% if form.diagnosis.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.diagnosis.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.service_plan.label(class="form-label") }}
+                            {{ form.service_plan(class="form-control", rows=3) }}
+                            {% if form.service_plan.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.service_plan.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.parts_needed.label(class="form-label") }}
+                            {{ form.parts_needed(class="form-control", rows=3) }}
+                            {% if form.parts_needed.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.parts_needed.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.notes.label(class="form-label") }}
+                            {{ form.notes(class="form-control", rows=3) }}
+                            {% if form.notes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.notes.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="{{ url_for('employee.services') }}" class="btn btn-secondary">Back to Services</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

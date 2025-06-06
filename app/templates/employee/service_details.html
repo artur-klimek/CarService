@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Service Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Service Details</h2>
+        </div>
+        <div class="col text-end">
+            <a href="{{ url_for('employee.services') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Services
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Service Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Vehicle:</strong> {{ service.vehicle.make }} {{ service.vehicle.model }} ({{ service.vehicle.license_plate }})</p>
+                    <p><strong>Client:</strong> {{ service.client.get_full_name() }}</p>
+                    <p><strong>Status:</strong> 
+                        <span class="badge bg-{{ service.status_color }}">
+                            {{ service.status|replace('_', ' ')|title }}
+                        </span>
+                    </p>
+                    <p><strong>Priority:</strong> 
+                        <span class="badge bg-{{ service.priority_color }}">
+                            {{ service.priority|title }}
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Created:</strong> {{ service.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    {% if service.scheduled_date %}
+                    <p><strong>Scheduled Date:</strong> {{ service.scheduled_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                    {% endif %}
+                    {% if service.employee %}
+                    <p><strong>Assigned To:</strong> {{ service.employee.get_full_name() }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <p><strong>Description:</strong></p>
+                    <p>{{ service.description }}</p>
+                </div>
+            </div>
+            {% if service.diagnosis %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <p><strong>Diagnosis:</strong></p>
+                    <p>{{ service.diagnosis }}</p>
+                </div>
+            </div>
+            {% endif %}
+            {% if service.service_plan %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <p><strong>Service Plan:</strong></p>
+                    <p>{{ service.service_plan }}</p>
+                </div>
+            </div>
+            {% endif %}
+            {% if service.parts_needed %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <p><strong>Parts Needed:</strong></p>
+                    <p>{{ service.parts_needed }}</p>
+                </div>
+            </div>
+            {% endif %}
+            {% if service.notes %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <p><strong>Notes:</strong></p>
+                    <p>{{ service.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    {% if service.estimated_cost is not none %}
+                    <p><strong>Estimated Cost:</strong> ${{ "%.2f"|format(service.estimated_cost) }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {% if service.actual_cost is not none %}
+                    <p><strong>Actual Cost:</strong> ${{ "%.2f"|format(service.actual_cost) }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if service.status == 'payment_received' %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Update Service Status</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('employee.update_service_status', id=service.id) }}">
+                <div class="mb-3">
+                    <label for="new_status" class="form-label">New Status</label>
+                    <select class="form-select" id="new_status" name="new_status" required>
+                        <option value="ready_for_pickup">Ready for Pickup</option>
+                        <option value="in_progress">Continue Service</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="status_note" class="form-label">Status Note</label>
+                    <textarea class="form-control" id="status_note" name="status_note" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Status</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if service.status == 'pending' %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Accept Service</h5>
+        </div>
+        <div class="card-body">
+            <p>If the proposed date and service details are acceptable, you can accept this service request.</p>
+            <form method="POST" action="{{ url_for('employee.accept_service', id=service.id) }}">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Accept Service
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if service.status in ['pending', 'accepted'] %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Propose New Date</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('employee.propose_date', id=service.id) }}">
+                <div class="mb-3">
+                    <label for="scheduled_date" class="form-label">New Date</label>
+                    <input type="datetime-local" class="form-control" id="scheduled_date" name="scheduled_date" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Propose New Date</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Service History</h5>
+        </div>
+        <div class="card-body">
+            {% if service.history %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>User</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in service.history|sort(attribute='created_at', reverse=true) %}
+                        <tr>
+                            <td>{{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ entry.description }}</td>
+                            <td>{{ entry.user.get_full_name() }}</td>
+                            <td>
+                                {% if entry.description.startswith('Status changed from') %}
+                                <span class="badge bg-info">Status Change</span>
+                                {% elif entry.description.startswith('Service assigned to') %}
+                                <span class="badge bg-primary">Assignment</span>
+                                {% elif entry.description.startswith('Client confirmed') %}
+                                <span class="badge bg-success">Client Confirmation</span>
+                                {% elif entry.description.startswith('Client requested') %}
+                                <span class="badge bg-warning">Client Request</span>
+                                {% elif entry.description.startswith('Service cancelled') %}
+                                <span class="badge bg-danger">Cancellation</span>
+                                {% elif entry.description.startswith('Payment received') %}
+                                <span class="badge bg-success">Payment</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Update</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No history available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

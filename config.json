@@ -1,0 +1,35 @@
+{
+    "logging": {
+        "level": "INFO",
+        "log_dir": "logs",
+        "max_log_files": 5,
+        "max_log_size_mb": 10
+    },
+    "server": {
+        "host": "0.0.0.0",
+        "port": 5000,
+        "debug": false
+    },
+    "SQLALCHEMY_DATABASE_URI": "sqlite:///carservice.db",
+    "SQLALCHEMY_TRACK_MODIFICATIONS": false,
+    "LOG_LEVEL": "INFO",
+    "LOG_FILE": "carservice.log",
+    "DEFAULT_ADMIN": {
+        "enabled": true,
+        "username": "admin",
+        "email": "admin@carservice.com",
+        "password": "admin123"
+    },
+    "DEFAULT_CLIENT": {
+        "enabled": true,
+        "username": "client",
+        "email": "client@carservice.com",
+        "password": "client123"
+    },
+    "DEFAULT_EMPLOYEE": {
+        "enabled": true,
+        "username": "employee",
+        "email": "employee@carservice.com",
+        "password": "employee123"
+    }
+}

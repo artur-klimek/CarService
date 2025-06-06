@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Services for {{ user.get_full_name() or user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Services for {{ user.get_full_name() or user.username }}</h2>
+        </div>
+        <div class="col text-end">
+            <a href="{{ url_for('admin.users') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Users
+            </a>
+            <a href="{{ url_for('admin.add_user_service', id=user.id) }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Service
+            </a>
+        </div>
+    </div>
+
+    {% if services %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Vehicle</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Assigned To</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td>
+                        {{ service.vehicle.make }} {{ service.vehicle.model }}
+                        <br>
+                        <small class="text-muted">{{ service.vehicle.license_plate }}</small>
+                    </td>
+                    <td>{{ service.description }}</td>
+                    <td>
+                        <span class="badge bg-{{ service.status_color }}">
+                            {{ service.status|replace('_', ' ')|title }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ service.priority_color }}">
+                            {{ service.priority|title }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if service.assigned_employee %}
+                            {{ service.assigned_employee.get_full_name() or service.assigned_employee.username }}
+                        {% else %}
+                            <span class="text-muted">Not assigned</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ service.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{{ url_for('admin.edit_service', id=service.id) }}" 
+                               class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{{ url_for('admin.service_details', id=service.id) }}" 
+                               class="btn btn-sm btn-info">
+                                <i class="fas fa-info-circle"></i> Details
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No services found for this user.
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

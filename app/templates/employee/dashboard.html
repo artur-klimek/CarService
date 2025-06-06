@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Employee Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Employee Dashboard</h2>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Service Management</h5>
+                    <p class="card-text">Manage all service requests and their statuses.</p>
+                    <a href="{{ url_for('employee.services') }}" class="btn btn-primary">
+                        <i class="fas fa-tools"></i> Go to Services
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Vehicle List</h5>
+                    <p class="card-text">View and manage all registered vehicles.</p>
+                    <a href="{{ url_for('employee.vehicles') }}" class="btn btn-primary">
+                        <i class="fas fa-car"></i> Go to Vehicles
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">User Management</h5>
+                    <p class="card-text">Manage users and their services.</p>
+                    <a href="{{ url_for('employee.users') }}" class="btn btn-primary">
+                        <i class="fas fa-users"></i> Go to Users
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Assigned Services</h5>
+                </div>
+                <div class="card-body">
+                    {% if assigned_services %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Client</th>
+                                    <th>Vehicle</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for service in assigned_services %}
+                                <tr>
+                                    <td>{{ service.id }}</td>
+                                    <td>{{ service.client.get_full_name() }}</td>
+                                    <td>{{ service.vehicle.make }} {{ service.vehicle.model }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ service.status_color }}">
+                                            {{ service.status|replace('_', ' ')|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ service.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('employee.service_details', id=service.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-info-circle"></i> Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No assigned services found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

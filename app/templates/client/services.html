@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}My Services{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>My Services</h2>
+        </div>
+        <div class="col text-end">
+            <a href="{{ url_for('client.service_request') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Request New Service
+            </a>
+            <div class="btn-group ms-2">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('client.services') }}">All Services</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('client.services', status='pending') }}">Pending</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('client.services', status='scheduled') }}">Scheduled</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('client.services', status='client_confirmed') }}">Client Confirmed</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('client.services', status='diagnosis_completed') }}">Diagnosis Completed</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('client.services', status='client_approved') }}">Client Approved</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('client.services', status='in_progress') }}">In Progress</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('client.services', status='ready_for_payment') }}">Ready for Payment</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('client.services', status='ready_for_pickup') }}">Ready for Pickup</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('client.services', status='completed') }}">Completed</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('client.services', status='cancelled') }}">Cancelled</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {% if services %}
+    <div class="row">
+        {% for service in services %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        {{ service.vehicle.make }} {{ service.vehicle.model }}
+                        <small class="text-muted">({{ service.vehicle.license_plate }})</small>
+                    </h5>
+                    <span class="badge bg-{{ service.status_color }}">
+                        {{ service.status|replace('_', ' ')|title }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong>Description:</strong><br>
+                        {{ service.description }}
+                    </p>
+                    {% if service.additional_notes %}
+                    <p class="card-text">
+                        <strong>Additional Notes:</strong><br>
+                        {{ service.additional_notes }}
+                    </p>
+                    {% endif %}
+                    <p class="card-text">
+                        <strong>Priority:</strong> 
+                        <span class="badge bg-{{ service.priority_color }}">
+                            {{ service.priority|title }}
+                        </span>
+                        <br>
+                        {% if service.preferred_date %}
+                        <strong>Preferred Date:</strong> {{ service.preferred_date.strftime('%Y-%m-%d %H:%M') }}<br>
+                        {% endif %}
+                        {% if service.scheduled_date %}
+                        <strong>Scheduled Date:</strong> {{ service.scheduled_date.strftime('%Y-%m-%d %H:%M') }}<br>
+                        {% endif %}
+                        {% if service.employee %}
+                        <strong>Assigned To:</strong> {{ service.employee.get_full_name() }}<br>
+                        {% endif %}
+                        {% if service.estimated_cost is not none %}
+                        <strong>Estimated Cost:</strong> ${{ "%.2f"|format(service.estimated_cost) }}<br>
+                        {% endif %}
+                        {% if service.actual_cost is not none %}
+                        <strong>Actual Cost:</strong> ${{ "%.2f"|format(service.actual_cost) }}<br>
+                        {% endif %}
+                        {% if service.diagnosis %}
+                        <strong>Diagnosis:</strong><br>
+                        {{ service.diagnosis }}<br>
+                        {% endif %}
+                        {% if service.service_plan %}
+                        <strong>Service Plan:</strong><br>
+                        {{ service.service_plan }}<br>
+                        {% endif %}
+                        {% if service.parts_needed %}
+                        <strong>Parts Needed:</strong><br>
+                        {{ service.parts_needed }}<br>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <div class="btn-group w-100">
+                        <a href="{{ url_for('client.service_details', id=service.id) }}" class="btn btn-info">
+                            <i class="fas fa-info-circle"></i> Details
+                        </a>
+                        <a href="{{ url_for('client.service_history', id=service.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-history"></i> History
+                        </a>
+                        
+                        {% if service.status == 'pending' %}
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelServiceModal{{ service.id }}">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        {% endif %}
+
+                        {% if service.status == 'scheduled' %}
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmServiceModal{{ service.id }}">
+                            <i class="fas fa-check"></i> Confirm
+                        </button>
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#requestDateChangeModal{{ service.id }}">
+                            <i class="fas fa-calendar-alt"></i> Change Date
+                        </button>
+                        {% endif %}
+
+                        {% if service.status == 'diagnosis_completed' %}
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveServiceModal{{ service.id }}">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#requestChangesModal{{ service.id }}">
+                            <i class="fas fa-edit"></i> Request Changes
+                        </button>
+                        {% endif %}
+
+                        {% if service.status == 'ready_for_payment' %}
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#makePaymentModal{{ service.id }}">
+                            <i class="fas fa-credit-card"></i> Make Payment
+                        </button>
+                        {% endif %}
+
+                        {% if service.status == 'ready_for_pickup' %}
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmPickupModal{{ service.id }}">
+                            <i class="fas fa-check"></i> Confirm Pickup
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cancel Service Modal -->
+        <div class="modal fade" id="cancelServiceModal{{ service.id }}" tabindex="-1" aria-labelledby="cancelServiceModalLabel{{ service.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="cancelServiceModalLabel{{ service.id }}">Cancel Service</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ url_for('client.cancel_service', id=service.id) }}" method="POST">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="cancellation_reason" class="form-label">Reason for Cancellation</label>
+                                <textarea class="form-control" id="cancellation_reason" name="cancellation_reason" rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-danger">Cancel Service</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirm Service Modal -->
+        <div class="modal fade" id="confirmServiceModal{{ service.id }}" tabindex="-1" aria-labelledby="confirmServiceModalLabel{{ service.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmServiceModalLabel{{ service.id }}">Confirm Service</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ url_for('client.confirm_service', id=service.id) }}" method="POST">
+                        <div class="modal-body">
+                            <p>Are you sure you want to confirm this service for the scheduled date?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success">Confirm Service</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Date Change Modal -->
+        <div class="modal fade" id="requestDateChangeModal{{ service.id }}" tabindex="-1" aria-labelledby="requestDateChangeModalLabel{{ service.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="requestDateChangeModalLabel{{ service.id }}">Request Date Change</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ url_for('client.request_date_change', id=service.id) }}" method="POST">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="new_date" class="form-label">New Preferred Date</label>
+                                <input type="datetime-local" class="form-control" id="new_date" name="new_date" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="change_reason" class="form-label">Reason for Change</label>
+                                <textarea class="form-control" id="change_reason" name="change_reason" rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Request Change</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approve Service Modal -->
+        <div class="modal fade" id="approveServiceModal{{ service.id }}" tabindex="-1" aria-labelledby="approveServiceModalLabel{{ service.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="approveServiceModalLabel{{ service.id }}">Approve Service Plan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ url_for('client.approve_service', id=service.id) }}" method="POST">
+                        <div class="modal-body">
+                            <p>Are you sure you want to approve the service plan and estimated cost?</p>
+                            {% if service.estimated_cost is not none %}
+                            <div class="alert alert-info">
+                                <strong>Estimated Cost:</strong> ${{ "%.2f"|format(service.estimated_cost) }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success">Approve Service Plan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Changes Modal -->
+        <div class="modal fade" id="requestChangesModal{{ service.id }}" tabindex="-1" aria-labelledby="requestChangesModalLabel{{ service.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="requestChangesModalLabel{{ service.id }}">Request Changes</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ url_for('client.request_changes', id=service.id) }}" method="POST">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="change_request" class="form-label">Describe the changes you would like to request</label>
+                                <textarea class="form-control" id="change_request" name="change_request" rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Make Payment Modal -->
+        <div class="modal fade" id="makePaymentModal{{ service.id }}" tabindex="-1" aria-labelledby="makePaymentModalLabel{{ service.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="makePaymentModalLabel{{ service.id }}">Make Payment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ url_for('client.make_payment', id=service.id) }}" method="POST">
+                        <div class="modal-body">
+                            {% if service.actual_cost is not none %}
+                            <div class="alert alert-info">
+                                <strong>Amount to Pay:</strong> ${{ "%.2f"|format(service.actual_cost) }}
+                            </div>
+                            {% endif %}
+                            <div class="mb-3">
+                                <label for="payment_method" class="form-label">Payment Method</label>
+                                <select class="form-select" id="payment_method" name="payment_method" required>
+                                    <option value="">Choose payment method...</option>
+                                    <option value="credit_card">Credit Card</option>
+                                    <option value="debit_card">Debit Card</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success">Make Payment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirm Pickup Modal -->
+        <div class="modal fade" id="confirmPickupModal{{ service.id }}" tabindex="-1" aria-labelledby="confirmPickupModalLabel{{ service.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmPickupModalLabel{{ service.id }}">Confirm Pickup</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ url_for('client.confirm_pickup', id=service.id) }}" method="POST">
+                        <div class="modal-body">
+                            <p>Are you sure you want to confirm the pickup of your vehicle?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success">Confirm Pickup</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No services found.
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

@@ -22,6 +22,10 @@ var/
 **/bin
 **/obj
 **/node_modules
+venv_win/
+.venv_win/
+venv_linux/
+.venv_linux/
 
 # Virtual Environment
 venv/

@@ -14,6 +14,8 @@
    venv_win/
    .venv_linux/
    venv_linux/
+   tests/*.html
+   tests/*.txt
    
    # Logs
    logs/

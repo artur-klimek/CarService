@@ -30,10 +30,10 @@ from app.utils import client_required
 from datetime import datetime
 import logging
 
-bp = Blueprint('client', __name__)
+client_bp = Blueprint('client', __name__)
 logger = logging.getLogger(__name__)
 
-@bp.route('/dashboard')
+@client_bp.route('/dashboard')
 @login_required
 @client_required
 def dashboard():
@@ -53,7 +53,7 @@ def dashboard():
     logger.debug(f"Dashboard access from IP: {request.remote_addr}")
     return render_template('client/dashboard.html')
 
-@bp.route('/vehicles')
+@client_bp.route('/vehicles')
 @login_required
 @client_required
 def vehicles():
@@ -81,7 +81,7 @@ def vehicles():
         flash('Error retrieving vehicle list', 'error')
         return render_template('client/vehicles.html', vehicles=[])
 
-@bp.route('/vehicles/add', methods=['GET', 'POST'])
+@client_bp.route('/vehicles/add', methods=['GET', 'POST'])
 @login_required
 @client_required
 def add_vehicle():
@@ -134,7 +134,7 @@ def add_vehicle():
     
     return render_template('client/vehicle_form.html', title='Add Vehicle', form=form)
 
-@bp.route('/vehicles/<int:id>/edit', methods=['GET', 'POST'])
+@client_bp.route('/vehicles/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
 @client_required
 def edit_vehicle(id):
@@ -204,7 +204,7 @@ def edit_vehicle(id):
         flash('An error occurred while loading the vehicle.', 'error')
         return redirect(url_for('client.vehicles'))
 
-@bp.route('/vehicles/<int:id>/delete', methods=['POST'])
+@client_bp.route('/vehicles/<int:id>/delete', methods=['POST'])
 @login_required
 @client_required
 def delete_vehicle(id):
@@ -220,7 +220,7 @@ def delete_vehicle(id):
     flash('Vehicle has been deleted.', 'success')
     return redirect(url_for('client.vehicles'))
 
-@bp.route('/services')
+@client_bp.route('/services')
 @login_required
 @client_required
 def services():
@@ -246,7 +246,7 @@ def services():
     
     return render_template('client/services.html', services=services)
 
-@bp.route('/service-request', methods=['GET', 'POST'])
+@client_bp.route('/service-request', methods=['GET', 'POST'])
 @login_required
 @client_required
 def service_request():
@@ -297,7 +297,7 @@ def service_request():
     
     return render_template('client/service_request.html', vehicle=vehicle)
 
-@bp.route('/services/<int:id>/confirm', methods=['POST'])
+@client_bp.route('/services/<int:id>/confirm', methods=['POST'])
 @login_required
 @client_required
 def confirm_service(id):
@@ -318,7 +318,7 @@ def confirm_service(id):
     flash('Service has been confirmed.', 'success')
     return redirect(url_for('client.service_details', id=id))
 
-@bp.route('/services/<int:id>/request-date-change', methods=['POST'])
+@client_bp.route('/services/<int:id>/request-date-change', methods=['POST'])
 @login_required
 @client_required
 def request_date_change(id):
@@ -357,7 +357,7 @@ def request_date_change(id):
     
     return redirect(url_for('client.service_details', id=id))
 
-@bp.route('/services/<int:id>/cancel', methods=['POST'])
+@client_bp.route('/services/<int:id>/cancel', methods=['POST'])
 @login_required
 @client_required
 def cancel_service(id):
@@ -378,7 +378,7 @@ def cancel_service(id):
     flash('Service has been cancelled.', 'success')
     return redirect(url_for('client.services'))
 
-@bp.route('/services/<int:id>/approve', methods=['POST'])
+@client_bp.route('/services/<int:id>/approve', methods=['POST'])
 @login_required
 @client_required
 def approve_service(id):
@@ -399,7 +399,7 @@ def approve_service(id):
     flash('Service plan has been approved.', 'success')
     return redirect(url_for('client.service_details', id=id))
 
-@bp.route('/services/<int:id>/request-changes', methods=['POST'])
+@client_bp.route('/services/<int:id>/request-changes', methods=['POST'])
 @login_required
 @client_required
 def request_changes(id):
@@ -421,7 +421,7 @@ def request_changes(id):
     flash('Change request has been submitted.', 'success')
     return redirect(url_for('client.service_details', id=id))
 
-@bp.route('/services/<int:id>/make-payment', methods=['POST'])
+@client_bp.route('/services/<int:id>/make-payment', methods=['POST'])
 @login_required
 @client_required
 def make_payment(id):
@@ -487,7 +487,7 @@ def make_payment(id):
         flash('An error occurred while processing your payment.', 'error')
         return redirect(url_for('client.service_details', id=id))
 
-@bp.route('/services/<int:id>/confirm-pickup', methods=['POST'])
+@client_bp.route('/services/<int:id>/confirm-pickup', methods=['POST'])
 @login_required
 @client_required
 def confirm_pickup(id):
@@ -508,7 +508,7 @@ def confirm_pickup(id):
     flash('Vehicle pickup has been confirmed.', 'success')
     return redirect(url_for('client.services'))
 
-@bp.route('/services/<int:id>')
+@client_bp.route('/services/<int:id>')
 @login_required
 @client_required
 def service_details(id):
@@ -523,7 +523,7 @@ def service_details(id):
     
     return render_template('client/service_details.html', service=service)
 
-@bp.route('/services/<int:id>/history')
+@client_bp.route('/services/<int:id>/history')
 @login_required
 @client_required
 def service_history(id):

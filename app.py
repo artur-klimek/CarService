@@ -128,10 +128,16 @@ def create_app() -> Flask:
     # Register blueprints
     from app.routes.main import bp as main_bp
     from app.routes.auth import bp as auth_bp
+    from app.routes.client import client_bp
+    from app.routes.admin import bp as admin_bp
+    from app.routes.employee import bp as employee_bp
     
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
-    app_logger.info("Blueprints registered: main, auth")
+    app.register_blueprint(client_bp, url_prefix='/client')
+    app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(employee_bp, url_prefix='/employee')
+    app_logger.info("Blueprints registered: main, auth, client, admin, employee")
     
     # Create database tables and default admin account
     with app.app_context():

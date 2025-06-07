@@ -1,40 +1,42 @@
 # Python
-   __pycache__/
-   *.py[cod]
-   *.pyc
-   *.class
-   *.so
-   .Python
-   venv/
-   ENV/
-   .env
-   .venv
-   env/
-   .venv_win/
-   venv_win/
-   .venv_linux/
-   venv_linux/
-   tests/*.html
-   tests/*.txt
+**/__pycache__/
+__pycache__/
+*.py[cod]
+*.pyc
+*.class
+*.so
+.Python
+venv/
+ENV/
+.env
+.venv
+env/
+.venv_win/
+venv_win/
+.venv_linux/
+venv_linux/
+tests/*.html
+tests/*.txt
+assets
    
-   # Logs
-   logs/
-   *.log
+# Logs
+logs/
+*.log
    
-   # Database
-   *.db
-   *.sqlite3
+# Database
+*.db
+*.sqlite3
    
-   # IDE
-   .idea/
-   .vscode/
-   *.swp
-   *.swo
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
    
-   # OS
-   .DS_Store
-   Thumbs.db
+# OS
+.DS_Store
+Thumbs.db
    
-   # Project specific
-   config.json
+# Project specific
+config.json
    

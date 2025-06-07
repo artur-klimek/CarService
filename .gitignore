@@ -17,6 +17,8 @@ venv_win/
 venv_linux/
 tests/*.html
 tests/*.txt
+tests/unit_tests/*.html
+tests/unit_tests/*.txt
 assets
    
 # Logs

@@ -41,7 +41,6 @@ class ContactPage:
             "credentials_enable_service": False,
             "profile.password_manager_enabled": False
         })
-        # chrome_options.add_argument("--headless")  # jeśli chcesz tryb headless
         return webdriver.Chrome(options=chrome_options)
 
     def _log_html_on_error(self, driver, context: str):
@@ -179,7 +178,7 @@ class ContactPage:
                         rect1 = elem1.rect
                         for elem2 in visible_cards[i+1:]:
                             rect2 = elem2.rect
-                            # Tolerancja 2px na marginesy
+
                             if (
                                 rect1['x'] < rect2['x'] + rect2['width'] - 2 and
                                 rect1['x'] + rect1['width'] - 2 > rect2['x'] and
@@ -298,7 +297,7 @@ class ContactPage:
                     min_length = field.get_attribute("minlength")
                     max_length = field.get_attribute("maxlength")
                     required = driver.execute_script("return arguments[0].required", field)
-                    # Każde pole: fail jeśli którakolwiek z wartości jest False lub None
+
                     checks = [
                         min_length is not None and min_length != "" and int(min_length) > 0,
                         max_length is not None and max_length != "" and int(max_length) > 0,
@@ -367,7 +366,7 @@ class ContactPage:
                 time.sleep(0.2)
                 current_url = driver.current_url
                 focused_id = driver.execute_script("return document.activeElement.id")
-                # Dodatkowa weryfikacja: checkValidity dla każdego pola
+
                 invalid_fields = []
                 if not driver.execute_script("return arguments[0].checkValidity()", name_field):
                     invalid_fields.append("name")
@@ -391,7 +390,7 @@ class ContactPage:
                         "invalid_fields": invalid_fields
                     }
                     status = "failed"
-                # Odśwież stronę i pobierz elementy na nowo, by uniknąć stale element reference
+
                 driver.get(self.contact_url)
                 time.sleep(0.1)
                 name_field = driver.find_element(By.ID, "name")
@@ -430,7 +429,7 @@ class ContactPage:
             time.sleep(0.5)
             current_url = driver.current_url
             if current_url.rstrip("/").endswith("/"):
-                # Sprawdź czy na stronie głównej pojawił się komunikat flash
+
                 try:
                     alert = driver.find_element(By.XPATH, "//div[contains(@class, 'alert-success') and contains(text(), 'Your message has been sent. We will contact you soon.')]")
                     result = {
@@ -524,16 +523,16 @@ class ContactPage:
             driver.get(self.contact_url)
             time.sleep(0.2)
             wait = WebDriverWait(driver, 5)
-            # Sprawdź czy strona się ładuje i czy jest formularz kontaktowy
+
             try:
                 form = wait.until(EC.presence_of_element_located((By.TAG_NAME, "form")))
-                # Dla klienta i niezalogowanego: passed, dla innych: failed
+
                 if user_type in ["client", "unauthenticated"]:
                     result = {"status": "passed", "user_type": user_type, "message": "Contact page accessible."}
                 else:
                     result = {"status": "failed", "user_type": user_type, "message": "Contact page should not be accessible for this user type."}
             except Exception as e:
-                # Dla admina/employee: passed jeśli nie ma dostępu, dla innych: failed
+
                 if user_type in ["admin", "employee"]:
                     result = {"status": "passed", "user_type": user_type, "message": "Contact page not accessible as expected."}
                 else:
@@ -599,4 +598,4 @@ if __name__ == "__main__":
         print("============")
         contact_page.print_test_results(results)
     finally:
-        driver.quit() 
+        driver.quit()

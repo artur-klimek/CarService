@@ -41,7 +41,6 @@ class HomePage:
             "credentials_enable_service": False,
             "profile.password_manager_enabled": False
         })
-        # chrome_options.add_argument("--headless")  # jeśli chcesz tryb headless
         return webdriver.Chrome(options=chrome_options)
 
     def _log_html_on_error(self, driver, context: str):
@@ -89,7 +88,6 @@ class HomePage:
             time.sleep(0.2)
             wait = WebDriverWait(driver, 5)
             result = {"status": "passed", "user_type": user_type, "elements_found": {}}
-            # Sprawdź nagłówek, powitanie, główne karty
             elements = [
                 ("navbar", (By.CLASS_NAME, "navbar")),
                 ("welcome_header", (By.XPATH, "//h1[contains(text(), 'Welcome to CarService') or contains(text(), 'CarService') or contains(@class, 'display-4') or contains(@class, 'display')]")),
@@ -253,7 +251,6 @@ class HomePage:
                 {"name": "navbar_logout", "by": By.XPATH, "locator": "//div[@id='navbarNav']//a[contains(@class, 'nav-link') and contains(@href, '/auth/logout') and contains(normalize-space(.), 'Logout')]", "text": "Logout", "href": "/auth/logout"},
                 {"name": "footer", "by": By.CLASS_NAME, "locator": "footer"}
             ]
-        # Analogicznie dla innych ról (admin) można dodać później
         return []
 
     def _check_elements_flat(self, user_type: str) -> dict:
@@ -356,7 +353,7 @@ class HomePage:
                 by = elem["by"]
                 locator = elem["locator"]
                 expected_href = elem["href"]
-                # Specjalne przypadki
+
                 allowed_urls = [expected_href]
                 if name in ["navbar_logout"]:
                     allowed_urls.append("/")

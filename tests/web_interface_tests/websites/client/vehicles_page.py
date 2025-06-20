@@ -37,7 +37,6 @@ class ClientVehiclesPage:
             "credentials_enable_service": False,
             "profile.password_manager_enabled": False
         })
-        # chrome_options.add_argument("--headless")
         return webdriver.Chrome(options=chrome_options)
 
     def _login_as(self, user_type: str, driver):
@@ -86,29 +85,24 @@ class ClientVehiclesPage:
             wait = WebDriverWait(driver, 5)
             result = {"status": "passed", "user_type": user_type, "message": ""}
             if user_type == "client":
-                # Sprawdź nagłówek
                 try:
                     header = wait.until(EC.presence_of_element_located((By.XPATH, "//h1[contains(., 'My Vehicles')]")))
                     result["header"] = {"status": "passed"}
                 except Exception as e:
                     result["header"] = {"status": "failed", "error": str(e)}
                     result["status"] = "failed"
-                # Sprawdź przycisk Add New Vehicle
                 try:
                     add_btn = wait.until(EC.presence_of_element_located((By.XPATH, "//a[contains(@href, '/client/vehicles/add') and contains(., 'Add New Vehicle')]")))
                     result["add_btn"] = {"status": "passed"}
                 except Exception as e:
                     result["add_btn"] = {"status": "failed", "error": str(e)}
                     result["status"] = "failed"
-                # Sprawdź czy są pojazdy lub komunikat o braku pojazdów
                 try:
                     vehicle_cards = driver.find_elements(By.XPATH, "//div[contains(@class, 'card-body')]/h5[contains(@class, 'card-title')]")
                     if vehicle_cards:
                         result["vehicles"] = {"status": "passed", "count": len(vehicle_cards)}
-                        # Sprawdź przyciski Edit, Request Service, Delete dla pierwszego pojazdu
                         try:
                             card = vehicle_cards[0].find_element(By.XPATH, "ancestor::div[contains(@class, 'card')]")
-                            # Po każdej akcji szukaj elementów od nowa
                             edit_btn = card.find_element(By.XPATH, ".//a[contains(@href, '/client/vehicles/') and contains(@href, '/edit') and contains(., 'Edit')]")
                             req_btn = card.find_element(By.XPATH, ".//a[contains(@href, '/client/service-request') and contains(., 'Request Service')]")
                             del_btn = card.find_element(By.XPATH, ".//button[contains(@class, 'btn-outline-danger') and contains(., 'Delete')]")
@@ -117,7 +111,6 @@ class ClientVehiclesPage:
                             result["vehicle_card_btns"] = {"status": "failed", "error": str(e)}
                             result["status"] = "failed"
                     else:
-                        # Sprawdź komunikat o braku pojazdów
                         try:
                             info = driver.find_element(By.XPATH, "//div[contains(@class, 'alert-info') and contains(., \"haven't added any vehicles\")]")
                             result["no_vehicles_info"] = {"status": "passed"}
@@ -128,14 +121,12 @@ class ClientVehiclesPage:
                     result["vehicles"] = {"status": "failed", "error": str(e)}
                     result["status"] = "failed"
             else:
-                # Sprawdź czy jest przekierowanie lub komunikat o braku dostępu
                 current_url = driver.current_url
                 if "/auth/login" in current_url or "/login" in current_url or current_url.rstrip("/").endswith(self.base_url):
                     result["access"] = {"status": "passed", "message": f"Redirected to login or home: {current_url}"}
                 elif user_type in ["employee", "admin"] and ("/dashboard" in current_url or "/admin" in current_url or "/employee" in current_url):
                     result["access"] = {"status": "passed", "message": f"Redirected to dashboard: {current_url}"}
                 else:
-                    # Sprawdź komunikat o braku dostępu
                     try:
                         alert = driver.find_element(By.XPATH, "//*[contains(., 'not authorized') or contains(., 'access denied') or contains(., 'permission denied') or contains(., 'zaloguj') or contains(., 'nie masz dostępu')]")
                         result["access"] = {"status": "passed", "message": "Access denied message present"}
@@ -153,7 +144,6 @@ class ClientVehiclesPage:
         return result
 
     def _get_expected_navbar_links(self):
-        # Zwraca listę linków navbaru klienta (zgodnie z base.html i index.html)
         return [
             {"name": "navbar_home", "by": By.XPATH, "locator": "//div[@id='navbarNav']//a[contains(@class, 'nav-link') and contains(@href, '/') and contains(normalize-space(.), 'Home')]", "href": "/"},
             {"name": "navbar_contact", "by": By.XPATH, "locator": "//div[@id='navbarNav']//a[contains(@class, 'nav-link') and contains(@href, '/contact') and contains(normalize-space(.), 'Contact')]", "href": "/contact"},
@@ -171,7 +161,7 @@ class ClientVehiclesPage:
             driver.get(self.vehicles_url)
             time.sleep(0.2)
             wait = WebDriverWait(driver, 5)
-            # --- Navbar links ---
+
             navbar_links = self._get_expected_navbar_links()
             for link in navbar_links:
                 name = link["name"]
@@ -189,7 +179,7 @@ class ClientVehiclesPage:
                     time.sleep(0.3)
                     current_url = driver.current_url
                     passed = any(url in current_url for url in allowed_urls)
-                    # Dla navbar_request_service: jeśli przekierowano na /client/vehicles i jest alert, to passed
+
                     if name == "navbar_request_service" and "/client/vehicles" in current_url:
                         try:
                             alert = driver.find_element(By.XPATH, "//div[contains(@class, 'alert-warning') and contains(., 'Please select a vehicle first.')]")
@@ -203,7 +193,7 @@ class ClientVehiclesPage:
                         "actual_url": current_url,
                         "message": "Redirect OK" if passed else f"Expected one of {allowed_urls} in '{current_url}'"
                     }
-                    # Po kliknięciu logout lub inny link wróć na vehicles
+
                     if name != "navbar_logout":
                         driver.get(self.vehicles_url)
                         wait.until(EC.presence_of_element_located((By.XPATH, "//h1[contains(., 'My Vehicles')]")))
@@ -215,8 +205,7 @@ class ClientVehiclesPage:
                         time.sleep(0.2)
                 except Exception as e:
                     results[name] = {"status": "failed", "error": str(e)}
-            # --- Vehicles page links (jak dotychczas) ---
-            # Add New Vehicle
+
             try:
                 add_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, '/client/vehicles/add') and contains(., 'Add New Vehicle')]")))
                 add_btn.click()
@@ -227,7 +216,6 @@ class ClientVehiclesPage:
                 wait.until(EC.presence_of_element_located((By.XPATH, "//h1[contains(., 'My Vehicles')]")))
             except Exception as e:
                 results["add_new_vehicle"] = {"status": "failed", "error": str(e)}
-            # Jeśli są pojazdy, sprawdź linki Edit i Request Service
             try:
                 vehicle_cards = driver.find_elements(By.XPATH, "//div[contains(@class, 'card-body')]/h5[contains(@class, 'card-title')]")
                 if vehicle_cards:
@@ -245,7 +233,6 @@ class ClientVehiclesPage:
                         card = vehicle_cards[0].find_element(By.XPATH, "ancestor::div[contains(@class, 'card')]")
                     except Exception as e:
                         results["edit_vehicle"] = {"status": "failed", "error": str(e)}
-                    # Request Service
                     try:
                         req_btn = card.find_element(By.XPATH, ".//a[contains(@href, '/client/service-request') and contains(., 'Request Service')]")
                         req_btn.click()
@@ -258,7 +245,6 @@ class ClientVehiclesPage:
                         card = vehicle_cards[0].find_element(By.XPATH, "ancestor::div[contains(@class, 'card')]")
                     except Exception as e:
                         results["request_service"] = {"status": "failed", "error": str(e)}
-                    # Delete (otwarcie modala)
                     try:
                         del_btn = card.find_element(By.XPATH, ".//button[contains(@class, 'btn-outline-danger') and contains(., 'Delete')]")
                         del_btn.click()
@@ -372,4 +358,4 @@ if __name__ == "__main__":
         print("============")
         page.print_test_results(results)
     finally:
-        driver.quit() 
+        driver.quit()

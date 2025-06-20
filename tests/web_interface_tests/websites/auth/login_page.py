@@ -25,14 +25,13 @@ class LoginPage:
         self.base_url = f"{self.config['base_url']}:{self.config['port']}"
         self.login_url = f"{self.base_url}/auth/login"
         
-        # Common screen resolutions for responsive testing
         self.screen_resolutions = [
-            (1920, 1080),  # Full HD
-            (1366, 768),   # Laptop
-            (1280, 720),   # HD
-            (768, 1024),   # Tablet Portrait
-            (414, 896),    # iPhone XR
-            (375, 667),    # iPhone 8
+            (1920, 1080),
+            (1366, 768),
+            (1280, 720),
+            (768, 1024),
+            (414, 896),
+            (375, 667),
         ]
         
     def _load_config(self) -> Dict[str, Any]:
@@ -62,7 +61,6 @@ class LoginPage:
         from selenium.webdriver.chrome.options import Options
         from selenium import webdriver
         chrome_options = Options()
-        # chrome_options.add_argument("--headless")  # Odkomentuj jeśli chcesz tryb headless
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         return webdriver.Chrome(options=chrome_options)
@@ -157,20 +155,15 @@ class LoginPage:
         """
         try:
             self.driver.get(self.login_url)
-            # Ustaw małe okno, aby wymusić scrollowanie
             self.driver.set_window_size(375, 667)
             time.sleep(1)
-            # Get initial scroll position
             initial_scroll = self.driver.execute_script("return window.pageYOffset;")
-            # Scroll to bottom
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(1)  # Wait for scroll to complete
+            time.sleep(1)
             bottom_scroll = self.driver.execute_script("return window.pageYOffset;")
-            # Scroll back to top
             self.driver.execute_script("window.scrollTo(0, 0);")
-            time.sleep(1)  # Wait for scroll to complete
+            time.sleep(1)
             final_scroll = self.driver.execute_script("return window.pageYOffset;")
-            # Przywróć domyślny rozmiar okna
             self.driver.set_window_size(1920, 1080)
             result = {
                 "status": "passed",
@@ -296,13 +289,12 @@ class LoginPage:
 
             links = get_links()
             for i in range(len(links)):
-                links = get_links()  # odśwież referencje
+                links = get_links()
                 if i >= len(links):
                     break
                 link = links[i]
                 href = link.get_attribute("href")
                 text = link.text or link.get_attribute("id") or href
-                # Ignoruj linki bez href, z #, javascript:, data:, lub href nie zaczynające się od / lub http
                 if not href or href.strip() == "" or href.startswith("javascript:") or href.startswith("data:") or href.strip() == "#" or not (href.startswith("/") or href.startswith("http")):
                     continue
                 try:
@@ -324,7 +316,6 @@ class LoginPage:
                         link.click()
                         time.sleep(1)
                         current_url = driver.current_url
-                    # Jeśli Selenium przejdzie pod data:, to błąd
                     if current_url.startswith("data:"):
                         link_results[text] = {
                             "status": "failed",
@@ -434,7 +425,6 @@ class LoginPage:
                 username_field.send_keys(test_case["username"])
                 password_field.send_keys(test_case["password"])
                 submit_button.click()
-                # Sprawdzenie HTML5 validity przez JS
                 username_valid = driver.execute_script("return arguments[0].checkValidity()", username_field)
                 password_valid = driver.execute_script("return arguments[0].checkValidity()", password_field)
                 if not username_valid or not password_valid:
@@ -444,7 +434,6 @@ class LoginPage:
                         "allowed": False
                     }
                 else:
-                    # Sprawdź czy pojawił się komunikat o błędzie (np. backend)
                     try:
                         error_message = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "error-message")))
                         results[test_case["case"]] = {
@@ -487,7 +476,6 @@ class LoginPage:
             password_field.send_keys("wrong_password")
             submit_button.click()
             try:
-                # Szukaj komunikatu o błędzie po .alert-danger
                 error_message = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".alert-danger")))
                 result = {
                     "status": "passed",
@@ -579,7 +567,6 @@ class LoginPage:
                         print(f"{indent_str}  Message: {value['message']}")
                     if "error" in value:
                         print(f"{indent_str}  Error: {value['error']}")
-                    # Jeśli są zagnieżdżone wyniki (np. links)
                     for subkey in [k for k in value if isinstance(value[k], dict)]:
                         print(f"{indent_str}  {subkey}:")
                         self.print_test_results(value[subkey], indent + 2)
@@ -597,7 +584,6 @@ class LoginPage:
         """
         driver = self._get_fresh_driver()
         try:
-            # 1. Zaloguj się
             driver.get(self.login_url)
             time.sleep(1)
             wait = WebDriverWait(driver, 10)
@@ -611,18 +597,15 @@ class LoginPage:
             password_field.send_keys(credentials["password"])
             submit_button.click()
             time.sleep(1)
-            # 2. Spróbuj wejść na /auth/login będąc zalogowanym
             driver.get(self.login_url)
             time.sleep(1)
             current_url = driver.current_url
-            # Sprawdź czy nastąpiło przekierowanie (np. na / lub dashboard)
             if not current_url.endswith("/auth/login"):
                 return {
                     "status": "passed",
                     "message": f"User was redirected to {current_url} when trying to access /auth/login while logged in. This is correct behavior.",
                     "redirect_url": current_url
                 }
-            # Sprawdź czy pojawił się komunikat o byciu zalogowanym
             try:
                 alert = driver.find_element(By.CSS_SELECTOR, ".alert, .alert-info, .alert-warning, .alert-danger")
                 alert_text = alert.text.strip()
@@ -633,7 +616,6 @@ class LoginPage:
                     }
             except Exception:
                 pass
-            # Jeśli nie było przekierowania ani komunikatu, to błąd
             return {
                 "status": "failed",
                 "message": "Login page is accessible while already logged in. No redirect or warning message was shown. This is a security/UX issue.",
@@ -650,20 +632,16 @@ class LoginPage:
             driver.quit()
 
 if __name__ == "__main__":
-    # Setup Chrome options
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run in headless mode (no GUI)
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     
-    # Initialize Chrome driver
     driver = webdriver.Chrome(options=chrome_options)
     
     try:
-        # Create login page test instance
         login_page = LoginPage(driver)
         
-        # Parse command line arguments if needed
         import sys
         if len(sys.argv) > 1:
             test_type = sys.argv[1]
@@ -680,10 +658,8 @@ if __name__ == "__main__":
                 print("Available test types: unauthenticated, client, employee, admin")
                 sys.exit(1)
         else:
-            # Run all tests by default
             results = login_page.run_all_tests()
         
-        # Print results
         print("\nTest Results:")
         print("============")
         login_page.print_test_results(results)

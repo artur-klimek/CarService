@@ -40,7 +40,6 @@ class ClientVehicleFormPage:
             "credentials_enable_service": False,
             "profile.password_manager_enabled": False
         })
-        # chrome_options.add_argument("--headless")
         return webdriver.Chrome(options=chrome_options)
 
     def _login_as(self, user_type: str, driver):
@@ -88,7 +87,6 @@ class ClientVehicleFormPage:
                 card = vehicle_cards[0].find_element(By.XPATH, "ancestor::div[contains(@class, 'card')]")
                 edit_btn = card.find_element(By.XPATH, ".//a[contains(@href, '/client/vehicles/') and contains(@href, '/edit') and contains(., 'Edit')]")
                 href = edit_btn.get_attribute("href")
-                # Extract vehicle id from href
                 import re
                 m = re.search(r"/client/vehicles/(\d+)/edit", href)
                 if m:
@@ -101,7 +99,6 @@ class ClientVehicleFormPage:
         driver.get(self.vehicles_url)
         time.sleep(0.2)
         try:
-            # Znajdź pierwszy pojazd na liście i pobierz VIN oraz license_plate
             vin = None
             license_plate = None
             cards = driver.find_elements(By.XPATH, "//div[contains(@class, 'card-body')]")
@@ -175,7 +172,6 @@ class ClientVehicleFormPage:
             driver.get(url)
             wait = WebDriverWait(driver, 5)
             result = {"status": "passed", "mode": mode, "message": ""}
-            # Check form fields
             fields = [
                 ("make", By.NAME, "make"),
                 ("model", By.NAME, "model"),
@@ -190,21 +186,18 @@ class ClientVehicleFormPage:
                 except Exception as e:
                     result[fname] = {"status": "failed", "error": str(e)}
                     result["status"] = "failed"
-            # Submit button
             try:
                 submit_btn = wait.until(EC.presence_of_element_located((By.XPATH, "//input[@type='submit' and @id='submit']")))
                 result["submit_btn"] = {"status": "passed"}
             except Exception as e:
                 result["submit_btn"] = {"status": "failed", "error": str(e)}
                 result["status"] = "failed"
-            # Cancel button
             try:
                 cancel_btn = wait.until(EC.presence_of_element_located((By.XPATH, "//a[contains(@class, 'btn-secondary') and contains(., 'Cancel')]")))
                 result["cancel_btn"] = {"status": "passed"}
             except Exception as e:
                 result["cancel_btn"] = {"status": "failed", "error": str(e)}
                 result["status"] = "failed"
-            # Title
             try:
                 title = wait.until(EC.presence_of_element_located((By.XPATH, "//h2")))
                 result["title"] = {"status": "passed", "text": title.text}
@@ -226,7 +219,6 @@ class ClientVehicleFormPage:
             self._login_as("client", driver)
             driver.get(self.add_url)
             wait = WebDriverWait(driver, 5)
-            # Fill form with valid data
             test_data = {
                 "make": "TestMake",
                 "model": "TestModel",
@@ -242,13 +234,11 @@ class ClientVehicleFormPage:
             submit_btn.click()
             wait.until(EC.url_contains("/client/vehicles"))
             time.sleep(0.2)
-            # Check for success alert
             try:
                 alert = driver.find_element(By.XPATH, "//div[contains(@class, 'alert-success') and contains(., 'Vehicle has been added successfully.')]")
                 alert_present = alert.is_displayed()
             except Exception:
                 alert_present = False
-            # Check if vehicle appears in list
             try:
                 vehicle_cards = driver.find_elements(By.XPATH, f"//div[contains(@class, 'card-body')]/h5[contains(@class, 'card-title') and contains(., '{test_data['make']}') and contains(., '{test_data['model']}')]")
                 vehicle_found = bool(vehicle_cards)
@@ -261,15 +251,12 @@ class ClientVehicleFormPage:
                 "vehicle_found": vehicle_found,
                 "test_data": test_data
             }
-            # If failed, collect form errors and alerts
             if result["status"] == "failed":
-                # Collect form errors (text-danger)
                 try:
                     errors = driver.find_elements(By.XPATH, "//div[contains(@class, 'text-danger')]")
                     result["form_errors"] = [e.text for e in errors if e.text.strip()]
                 except Exception:
                     result["form_errors"] = []
-                # Collect all alerts (Bootstrap)
                 try:
                     alerts = driver.find_elements(By.XPATH, "//div[contains(@class, 'alert')]")
                     result["alerts"] = [a.text for a in alerts if a.text.strip()]
@@ -288,10 +275,8 @@ class ClientVehicleFormPage:
         driver = self._get_fresh_driver()
         try:
             self._login_as("client", driver)
-            # Find a vehicle to edit, or add one if none exists
             vehicle_id = self._get_first_vehicle_id(driver)
             if not vehicle_id:
-                # Add a vehicle first
                 self._logout(driver)
                 driver.quit()
                 self._test_add_vehicle()
@@ -303,7 +288,6 @@ class ClientVehicleFormPage:
             edit_url = f"{self.base_url}/client/vehicles/{vehicle_id}/edit"
             driver.get(edit_url)
             wait = WebDriverWait(driver, 5)
-            # Change model field
             model_field = wait.until(EC.presence_of_element_located((By.NAME, "model")))
             new_model = f"EditedModel{int(time.time())%1000}"
             model_field.clear()
@@ -312,13 +296,11 @@ class ClientVehicleFormPage:
             submit_btn.click()
             wait.until(EC.url_contains("/client/vehicles"))
             time.sleep(0.2)
-            # Check for success alert
             try:
                 alert = driver.find_element(By.XPATH, "//div[contains(@class, 'alert-success') and contains(., 'Vehicle has been updated successfully.')]")
                 alert_present = alert.is_displayed()
             except Exception:
                 alert_present = False
-            # Check if vehicle appears in list with new model
             try:
                 vehicle_cards = driver.find_elements(By.XPATH, f"//div[contains(@class, 'card-body')]/h5[contains(@class, 'card-title') and contains(., '{new_model}')]")
                 vehicle_found = bool(vehicle_cards)
@@ -342,7 +324,6 @@ class ClientVehicleFormPage:
         return result
 
     def _get_expected_navbar_links(self):
-        # Zwraca listę linków navbaru klienta (zgodnie z base.html i index.html)
         return [
             {"name": "navbar_home", "by": By.XPATH, "locator": "//div[@id='navbarNav']//a[contains(@class, 'nav-link') and contains(@href, '/') and contains(normalize-space(.), 'Home')]", "href": "/"},
             {"name": "navbar_contact", "by": By.XPATH, "locator": "//div[@id='navbarNav']//a[contains(@class, 'nav-link') and contains(@href, '/contact') and contains(normalize-space(.), 'Contact')]", "href": "/contact"},
@@ -361,7 +342,6 @@ class ClientVehicleFormPage:
             driver.get(url)
             time.sleep(0.2)
             wait = WebDriverWait(driver, 5)
-            # --- Navbar links ---
             navbar_links = self._get_expected_navbar_links()
             for link in navbar_links:
                 name = link["name"]
@@ -392,7 +372,6 @@ class ClientVehicleFormPage:
                         "actual_url": current_url,
                         "message": "Redirect OK" if passed else f"Expected one of {allowed_urls} in '{current_url}'"
                     }
-                    # Po kliknięciu logout lub inny link wróć na form
                     if name != "navbar_logout":
                         driver.get(url)
                         wait.until(EC.presence_of_element_located((By.XPATH, "//form")))
@@ -404,14 +383,12 @@ class ClientVehicleFormPage:
                         time.sleep(0.2)
                 except Exception as e:
                     results[name] = {"status": "failed", "error": str(e)}
-            # --- Cancel button ---
             try:
                 cancel_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'btn-secondary') and contains(., 'Cancel')]")))
                 cancel_btn.click()
                 wait.until(EC.url_contains("/client/vehicles"))
                 current_url = driver.current_url
                 results["cancel_btn"] = {"status": "passed" if "/client/vehicles" in current_url else "failed", "actual_url": current_url}
-                # wróć na form
                 driver.get(url)
                 wait.until(EC.presence_of_element_located((By.XPATH, "//form")))
             except Exception as e:
@@ -572,7 +549,6 @@ class ClientVehicleFormPage:
             url = self.add_url if mode == "add" else f"{self.base_url}/client/vehicles/{vehicle_id}/edit"
             driver.get(url)
             wait = WebDriverWait(driver, 5)
-            # Pobierz wszystkie pola
             fields = {
                 "make": driver.find_element(By.ID, "make"),
                 "model": driver.find_element(By.ID, "model"),
@@ -581,13 +557,11 @@ class ClientVehicleFormPage:
                 "vin": driver.find_element(By.ID, "vin"),
             }
             submit_btn = driver.find_element(By.ID, "submit")
-            # Pobierz dane istniejącego pojazdu do testu duplikatu
             existing_vehicle = self._get_first_vehicle_data(driver)
             if existing_vehicle:
                 dupe_vin = existing_vehicle["vin"]
                 dupe_lp = existing_vehicle["license_plate"]
             else:
-                # Dodaj poprawny pojazd, jeśli nie ma żadnego
                 valid_data = {
                     "make": "TestMake",
                     "model": "TestModel",
@@ -606,7 +580,6 @@ class ClientVehicleFormPage:
                 wait.until(EC.url_contains("/client/vehicles"))
                 dupe_vin = valid_data["vin"]
                 dupe_lp = valid_data["license_plate"]
-            # wróć na form
             driver.get(url)
             wait = WebDriverWait(driver, 5)
             fields = {
@@ -617,7 +590,6 @@ class ClientVehicleFormPage:
                 "vin": driver.find_element(By.ID, "vin"),
             }
             submit_btn = driver.find_element(By.ID, "submit")
-            # Testy walidacji HTML5 i duplikatów
             test_cases = [
                 ("make", "", "empty", True),
                 ("make", "A", "too_short", True),
@@ -650,7 +622,6 @@ class ClientVehicleFormPage:
                         "error": dupe_error
                     }
                     continue
-                # Sprawdzenie 'too_long' dla pól z maxlength
                 is_too_long_case = desc == "too_long"
                 maxlength = None
                 if is_too_long_case:
@@ -681,7 +652,6 @@ class ClientVehicleFormPage:
                                 field.send_keys(f"EDIT{int(time.time())%10000+1}")
                             elif f2 == "vin":
                                 field.send_keys(f"EDITVIN{int(time.time())%100000+1:07d}BB")
-                # Dla too_long: sprawdź ile znaków faktycznie zostało wpisanych
                 if is_too_long_case and maxlength:
                     actual_value = fields[fname].get_attribute("value")
                     if len(actual_value) == maxlength and len(value) > maxlength:
@@ -705,7 +675,6 @@ class ClientVehicleFormPage:
                 submit_btn.click()
                 time.sleep(0.2)
                 current_url = driver.current_url
-                # Po kliknięciu submit i odświeżeniu strony, pobierz na nowo wszystkie pola i submit_btn
                 driver.get(url)
                 time.sleep(0.1)
                 wait = WebDriverWait(driver, 5)
@@ -725,7 +694,6 @@ class ClientVehicleFormPage:
                 html_fragment = None
                 if desc in ["duplicate_vin", "duplicate_license_plate"]:
                     try:
-                        # Szukaj komunikatu bezpośrednio pod polem VIN/lic_plate
                         if desc == "duplicate_vin":
                             vin_input = driver.find_element(By.ID, "vin")
                             vin_parent = vin_input.find_element(By.XPATH, "..")
@@ -749,10 +717,8 @@ class ClientVehicleFormPage:
                     except Exception:
                         pass
                 if desc in ["duplicate_vin", "duplicate_license_plate"]:
-                    # Uznaj za passed, jeśli system zablokował przejście dalej (pozostał na stronie formularza)
                     status = "passed" if blocked else "failed"
                 elif desc == "too_long" and fname == "vin":
-                    # VIN za długi: sprawdź, czy system blokuje przejście dalej (nie przechodzi do listy pojazdów)
                     status = "passed" if blocked else "failed"
                 else:
                     status = "passed" if (should_block == blocked and is_invalid == should_block) else "failed"
@@ -784,7 +750,6 @@ class ClientVehicleFormPage:
         return result
 
     def run_all_tests(self):
-        # Find a vehicle id for edit tests (if possible)
         driver = self._get_fresh_driver()
         self._login_as("client", driver)
         vehicle_id = self._get_first_vehicle_id(driver)
@@ -848,4 +813,4 @@ if __name__ == "__main__":
         print("============")
         page.print_test_results(results)
     finally:
-        driver.quit() 
+        driver.quit()

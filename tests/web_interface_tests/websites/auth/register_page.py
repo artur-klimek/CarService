@@ -142,7 +142,7 @@ class RegisterPage:
             if driver.current_url != self.register_url:
                 driver.get(self.register_url)
                 time.sleep(0.1)
-            # Ustaw małe okno, aby wymusić scrollowanie
+            
             driver.set_window_size(375, 667)
             time.sleep(0.1)
             initial_scroll = driver.execute_script("return window.pageYOffset;")
@@ -152,7 +152,7 @@ class RegisterPage:
             driver.execute_script("window.scrollTo(0, 0);")
             time.sleep(0.1)
             final_scroll = driver.execute_script("return window.pageYOffset;")
-            # Przywróć domyślny rozmiar okna
+
             driver.set_window_size(1920, 1080)
             result = {
                 "status": "passed",
@@ -314,7 +314,6 @@ class RegisterPage:
                     min_length = field.get_attribute("minlength")
                     max_length = field.get_attribute("maxlength")
                     required = driver.execute_script("return arguments[0].required", field)
-                    # Dla pól hasła i email wymagaj min_length i max_length
                     if field_name in ["password", "password2", "email"]:
                         field_status = "passed" if (min_length and max_length and required) else "failed"
                     else:
@@ -443,7 +442,6 @@ class RegisterPage:
             password2_field.send_keys("differentpass")
             submit_button.click()
             time.sleep(0.1)
-            # Po submit ponownie pobierz referencję do pola password2 i jego rodzica
             password2_field = driver.find_element(By.ID, "password2")
             parent = password2_field.find_element(By.XPATH, "..")
             danger_divs = parent.find_elements(By.XPATH, "./div[contains(@class, 'text-danger')]")
@@ -459,7 +457,6 @@ class RegisterPage:
                     "passwords_match": False
                 }
             else:
-                # fallback: szukaj globalnego alertu
                 try:
                     error_message = driver.find_element(By.CSS_SELECTOR, ".alert-danger, .alert-warning, .alert-info, .alert, .text-danger")
                     if "passwords must match" in error_message.text.lower():
@@ -510,7 +507,6 @@ class RegisterPage:
             password2_field.send_keys(existing["password"])
             submit_button.click()
             time.sleep(0.1)
-            # Po submit ponownie pobierz referencje do pól i ich rodziców
             username_field = driver.find_element(By.ID, "username")
             email_field = driver.find_element(By.ID, "email")
             username_parent = username_field.find_element(By.XPATH, "..")
@@ -534,7 +530,6 @@ class RegisterPage:
                     "existing_account": True
                 }
             else:
-                # fallback: szukaj globalnego alertu
                 try:
                     error_message = driver.find_element(By.CSS_SELECTOR, ".alert-danger, .alert-warning, .alert-info, .alert, .text-danger")
                     if ("please use a different username" in error_message.text.lower() or
@@ -583,7 +578,6 @@ class RegisterPage:
             password_field = wait.until(EC.presence_of_element_located((By.ID, "password")))
             password2_field = wait.until(EC.presence_of_element_located((By.ID, "password2")))
             submit_button = wait.until(EC.presence_of_element_located((By.ID, "submit")))
-            # Wygeneruj losowe dane
             login, email, password = self._generate_random_credentials()
             username_field.clear()
             email_field.clear()
@@ -596,9 +590,7 @@ class RegisterPage:
             submit_button.click()
             time.sleep(0.1)
             current_url = driver.current_url
-            # Sprawdź czy nie pojawił się komunikat o błędzie lub sukcesie
             try:
-                # Szukaj komunikatu sukcesu lub błędu
                 success_msg = None
                 error_message = driver.find_element(By.CSS_SELECTOR, ".alert-danger, .alert-warning, .alert-info, .alert, .text-danger")
                 if ("congratulations" in error_message.text.lower() or "registered" in error_message.text.lower()):
@@ -620,7 +612,6 @@ class RegisterPage:
                         "current_url": current_url
                     }
             except NoSuchElementException:
-                # Sprawdź czy nastąpiło przekierowanie (np. na /auth/login lub /)
                 if not current_url.endswith("/auth/register"):
                     result = {
                         "status": "passed",
@@ -648,7 +639,6 @@ class RegisterPage:
     def test_register_page_when_logged_in(self, user_type: str) -> dict:
         driver = self._get_fresh_driver()
         try:
-            # 1. Zaloguj się
             driver.get(self.login_url)
             time.sleep(0.1)
             wait = WebDriverWait(driver, 5)
@@ -662,7 +652,6 @@ class RegisterPage:
             password_field.send_keys(credentials["password"])
             submit_button.click()
             time.sleep(0.1)
-            # 2. Spróbuj wejść na /auth/register będąc zalogowanym
             driver.get(self.register_url)
             time.sleep(0.1)
             current_url = driver.current_url
@@ -796,4 +785,4 @@ if __name__ == "__main__":
         print("============")
         register_page.print_test_results(results)
     finally:
-        driver.quit() 
+        driver.quit()
